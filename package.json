@@ -1,0 +1,20 @@
+{
+  "name": "100-days-backend-mastery",
+  "version": "1.0.0",
+  "description": "Backend mastery course: Day 1 to 100",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["backend", "nodejs", "api", "mastery"],
+  "author": "https://github.com/ID-Inyang",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.5.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module"
+}
