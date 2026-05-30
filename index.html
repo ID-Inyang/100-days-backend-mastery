@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+  --border:#2a2a2a;--border2:#333;
+  --text:#e8e8e8;--muted:#666;--muted2:#888;
+  --green:#00d084;--green2:#00a86b;--green-bg:#001a0e;
+  --amber:#f5a623;--amber-bg:#1a0f00;
+  --blue:#4da6ff;--blue-bg:#001429;
+  --red:#ff5555;--red-bg:#1a0000;
+  --purple:#b57bee;--purple-bg:#120a1a;
+  --teal:#00c9c9;--teal-bg:#001a1a;
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* Header */
+.header{padding:2rem 2rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg)}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 8px;border-radius:3px;letter-spacing:.05em;font-weight:500}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid #003d1f}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid #3d2800}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #003366}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid #2d1a45}
+h1{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.subtitle{font-size:13px;color:var(--muted2);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+
+/* Progress */
+.progress-section{padding:1.5rem 2rem;border-bottom:1px solid var(--border);background:var(--bg2)}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.progress-label{font-size:12px;color:var(--muted2);font-family:'IBM Plex Mono',monospace}
+.progress-num{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace}
+.progress-track{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:3px;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:2px;transition:width .4s}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:1.25rem}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.75rem;text-align:center}
+.stat-num{font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--green)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Phase nav */
+.phase-nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;background:var(--bg)}
+.phase-btn{font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 12px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.phase-btn:hover{border-color:var(--green);color:var(--green)}
+.phase-btn.active{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+
+/* Main layout */
+.main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 300px)}
+
+/* Week sidebar */
+.sidebar{border-right:1px solid var(--border);background:var(--bg2);overflow-y:auto;max-height:600px}
+.week-item{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;position:relative}
+.week-item:hover{background:var(--bg3)}
+.week-item.active{background:var(--bg3);border-left:2px solid var(--green)}
+.week-item.active .week-num{color:var(--green)}
+.week-num{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-bottom:3px}
+.week-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.week-dates{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.week-progress{margin-top:8px;display:flex;align-items:center;gap:8px}
+.week-bar{flex:1;height:2px;background:var(--bg4);border-radius:1px;overflow:hidden}
+.week-fill{height:2px;background:var(--green);border-radius:1px;transition:width .3s}
+.week-pct{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;min-width:28px}
+.week-project-badge{font-size:9px;padding:2px 6px;background:var(--amber-bg);color:var(--amber);border:1px solid #3d2800;border-radius:2px;font-family:'IBM Plex Mono',monospace;margin-top:5px;display:inline-block}
+
+/* Day view */
+.day-view{padding:1.5rem 2rem;overflow-y:auto;max-height:600px}
+.week-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.week-header-title{font-size:18px;font-weight:600}
+.week-header-meta{font-size:12px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;margin-top:4px}
+.week-goal{background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--amber);border-radius:4px;padding:.875rem 1rem;margin-bottom:1.5rem;font-size:13px;color:var(--muted2)}
+.week-goal strong{color:var(--amber);font-weight:500}
+
+/* Day card */
+.day-card{border:1px solid var(--border);border-radius:6px;margin-bottom:.75rem;overflow:hidden;transition:border-color .15s}
+.day-card.completed{border-color:#003d1f;background:var(--green-bg)}
+.day-card-header{display:flex;align-items:center;gap:12px;padding:.875rem 1rem;cursor:pointer;background:transparent}
+.day-card.completed .day-card-header{background:rgba(0,208,132,.04)}
+.day-check{width:20px;height:20px;border:1.5px solid var(--border2);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s}
+.day-check:hover{border-color:var(--green)}
+.day-card.completed .day-check{background:var(--green);border-color:var(--green)}
+.day-num-badge{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);min-width:48px}
+.day-title{font-size:13px;font-weight:500;flex:1;color:var(--text)}
+.day-card.completed .day-title{color:var(--muted2)}
+.day-type{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:2px 7px;border-radius:3px}
+.type-learn{background:var(--blue-bg);color:var(--blue);border:1px solid #003366}
+.type-build{background:var(--green-bg);color:var(--green);border:1px solid #003d1f}
+.type-ship{background:var(--amber-bg);color:var(--amber);border:1px solid #3d2800}
+.type-review{background:var(--purple-bg);color:var(--purple);border:1px solid #2d1a45}
+.day-expand{font-size:11px;color:var(--muted);padding:0;background:none;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:color .1s}
+.day-expand:hover{color:var(--green)}
+.day-body{padding:0 1rem 1rem 1rem;display:none;border-top:1px solid var(--border)}
+.day-body.open{display:block}
+.day-body-inner{padding-top:.875rem}
+.day-section{margin-bottom:.875rem}
+.day-section-label{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.day-task{display:flex;gap:8px;font-size:12.5px;color:var(--muted2);margin-bottom:.4rem;line-height:1.5}
+.day-task::before{content:'→';color:var(--green);flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:2px}
+.resource-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;margin:3px 3px 0 0;color:var(--muted2);cursor:pointer;transition:all .15s;text-decoration:none}
+.resource-chip:hover{border-color:var(--blue);color:var(--blue)}
+.resource-chip .icon{font-size:10px}
+.day-concept{font-size:12px;background:var(--purple-bg);border:1px solid #2d1a45;border-radius:4px;padding:.625rem .75rem;color:var(--muted2);line-height:1.6;margin-top:.5rem}
+.day-concept strong{color:var(--purple);font-weight:500}
+
+/* Project banner */
+.project-banner{background:var(--amber-bg);border:1px solid #3d2800;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.project-title{font-size:14px;font-weight:600;color:var(--amber);margin-bottom:.375rem}
+.project-desc{font-size:12.5px;color:var(--muted2);line-height:1.6;margin-bottom:.75rem}
+.project-features{display:flex;flex-wrap:wrap;gap:6px}
+.feature-tag{font-size:10px;font-family:'IBM Plex Mono',monospace;background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2);border-radius:3px;padding:2px 7px}
+
+.ship-banner{background:var(--green-bg);border:1px solid #003d1f;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.ship-title{font-size:14px;font-weight:600;color:var(--green);margin-bottom:.375rem}
+.ship-checklist{list-style:none}
+.ship-checklist li{font-size:12.5px;color:var(--muted2);padding:3px 0;display:flex;gap:8px}
+.ship-checklist li::before{content:'✓';color:var(--green);font-size:11px;margin-top:2px;flex-shrink:0}
+.checkmark-svg{width:12px;height:12px;stroke:white;fill:none;stroke-width:2.5}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>100‑Day Backend Challenge<br><span style="font-size:14px;color:#888">The Deep Roadmap – From Zero to Systems Expert</span></h1>
+      <div class="subtitle">May 29 → Sep 5, 2026 · JavaScript/Node.js · Build. Ship. Understand.</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace" id="today-label">TODAY: Day 1</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:3px;font-family:'IBM Plex Mono',monospace">OS · Networks · DB Internals · Distributed</div>
+    </div>
+  </div>
+  <div class="badge-row">
+    <span class="badge badge-green">Node.js / JS</span>
+    <span class="badge badge-blue">14 Weeks · 100 Days</span>
+    <span class="badge badge-amber">14 Shipped Projects</span>
+    <span class="badge badge-purple">Systems Depth</span>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-meta">
+    <span class="progress-label">Overall progress</span>
+    <span class="progress-num" id="overall-pct">0 / 100 days</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="overall-bar" style="width:0%"></div></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Days Done</div></div>
+    <div class="stat"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div>
+    <div class="stat"><div class="stat-num" id="stat-shipped">0</div><div class="stat-label">Projects Shipped</div></div>
+    <div class="stat"><div class="stat-num" id="stat-left">100</div><div class="stat-label">Days Left</div></div>
+  </div>
+</div>
+
+<div class="phase-nav" id="phase-nav"></div>
+<div class="main">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="day-view" id="day-view"></div>
+</div>
+
+<script>
+// ------------------------------------------------------------------
+// COMPLETE REWRITE – ALL 100 DAYS, PROPER STRUCTURE, FIXED DAY 54
+// ------------------------------------------------------------------
+const WEEKS = [
+  // WEEK 1 – OS & Node.js
+  { id:1, title:"OS Fundamentals & Node.js Under the Hood", dates:"May 29 – Jun 4", phase:"Foundation", phaseColor:"blue",
+    goal:"Understand processes, threads, event loop, and build a CLI tool that respects OS signals.",
+    project:{name:"CLI Task Manager with OS signals", desc:"Command-line task manager with signal handling and async persistence.", features:["process.argv","fs.promises","crypto.randomUUID()","SIGINT handling","executable CLI"]},
+    shipChecklist:["Push to GitHub with README","Record 60s demo","Post #100DaysOfBackend Day 7","Add `chmod +x` and npm link"],
+    days:[
+      {num:1, date:"May 29", title:"Processes, threads, and the event loop", type:"learn", tasks:["Watch 'Node.js Event Loop' (freeCodeCamp)","Read about libuv","Write a script that blocks the event loop with while(true)","Write an async version that yields"], resources:[{label:"Node.js event loop",url:"https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick"}], concept:"<strong>Event loop + libuv:</strong> Node's JS runs single‑threaded, but libuv delegates I/O to the OS (epoll/kqueue). Blocking the loop stops everything."},
+      {num:2, date:"May 30", title:"Processes, signals, and environment", type:"learn", tasks:["Log `process.pid`, `process.argv`, `process.env`","Handle SIGINT","Spawn a child process","Understand exit codes"], resources:[{label:"Node.js process docs",url:"https://nodejs.org/api/process.html"}], concept:"<strong>Signals are OS‑level interrupts:</strong> SIGINT (Ctrl+C), SIGTERM (kill). Handle them to clean up resources."},
+      {num:3, date:"May 31", title:"File I/O, blocking vs non‑blocking", type:"learn", tasks:["Compare `fs.readFileSync` vs `fs.promises.readFile`","Use `fs.watch`","Implement a simple `grep` clone using streams"], resources:[{label:"Node.js streams",url:"https://nodejs.org/api/stream.html"}], concept:"<strong>Streams:</strong> Backpressure, buffers, and why you never `readFileSync` in a server."},
+      {num:4, date:"Jun 1", title:"Thread pools and async concurrency", type:"learn", tasks:["Increase UV_THREADPOOL_SIZE, run `pbkdf2`","Use `worker_threads` for CPU work","Measure context switching"], resources:[{label:"Worker threads docs",url:"https://nodejs.org/api/worker_threads.html"}], concept:"<strong>libuv thread pool:</strong> Node uses 4 threads for fs/crypto. Use workers for CPU‑heavy tasks."},
+      {num:5, date:"Jun 2", title:"Error handling & operational vs programmer errors", type:"learn", tasks:["Create custom error classes","Use `try/catch` with async/await","Log errors with `pino`","Hide stack traces in production"], resources:[{label:"Node best practices – errors",url:"https://github.com/goldbergyoni/nodebestpractices#2-error-handling-practices"}], concept:"<strong>Operational errors</strong> (file missing) = handle gracefully.<br><strong>Programmer errors</strong> (null dereference) = crash and fix."},
+      {num:6, date:"Jun 3", title:"Build CLI Task Manager", type:"build", tasks:["Add tasks using `process.argv`","Store tasks in `tasks.json` with UUIDs","List, complete, delete commands","Handle SIGINT: save before exit"], resources:[], concept:"<strong>Graceful shutdown:</strong> On SIGINT, close file handles, finish writes, then exit."},
+      {num:7, date:"Jun 4", title:"Ship Day 1 – CLI tool", type:"ship", tasks:["README with install / usage","Record demo (Loom)","Post on Twitter/LinkedIn","Add `learnings.md`"], resources:[], concept:"<strong>Shipping > perfection:</strong> A working CLI tool is more impressive than an unfinished grand plan."}
+    ]
+  },
+  // WEEK 2 – Computer Networks (all days fixed)
+  { id:2, title:"Computer Networks – HTTP is just the tip", dates:"Jun 5 – Jun 11", phase:"Foundation", phaseColor:"blue",
+    goal:"Understand what happens before your code runs: TCP handshake, TLS, DNS, and build a raw HTTP server.",
+    project:{name:"Raw HTTP/1.1 Server with TLS", desc:"HTTP server using only `node:net` and `node:tls`.", features:["net.createServer","manual request parsing","TLS certificates","keep‑alive","HTTP status codes"]},
+    shipChecklist:["Push code with curl examples","Post raw server vs Express comparison","Deploy to Railway with HTTPS"],
+    days:[
+      {num:8, date:"Jun 5", title:"TCP deep dive – three‑way handshake, flow control", type:"learn", tasks:["Use `net.createServer` to echo messages","Capture with Wireshark","Simulate slow client","Read about Nagle's algorithm"], resources:[{label:"TCP guide",url:"https://www.khanacademy.org/computing/computer-networking"}], concept:"<strong>TCP</strong> provides reliable, ordered streams. SYN, SYN‑ACK, ACK. Flow control prevents buffer overflow."},
+      {num:9, date:"Jun 6", title:"TLS & HTTPS – handshake, certificates, forward secrecy", type:"learn", tasks:["Generate self‑signed cert with `openssl`","Create `tls.createServer`","Test with `curl -v`","Understand ALPN"], resources:[{label:"Node.js TLS docs",url:"https://nodejs.org/api/tls.html"}], concept:"<strong>Forward secrecy:</strong> Ephemeral keys per session – compromising the server key later cannot decrypt past traffic."},
+      {num:10, date:"Jun 7", title:"DNS, HTTP/1.1, HTTP/2, HTTP/3 (QUIC)", type:"learn", tasks:["Use `dns.lookup` vs `dns.resolve`","Inspect HTTP/2 with `http2.createServer`","Read about QUIC","Measure round trips with `curl -w`"], resources:[{label:"DNS explained",url:"https://howdns.works/"}], concept:"<strong>HTTP/3 over QUIC:</strong> UDP with built‑in TLS 1.3, no head‑of‑line blocking."},
+      {num:11, date:"Jun 8", title:"Building a raw HTTP/1.1 parser", type:"build", tasks:["Parse `method path version`","Parse headers into an object","Handle chunked bodies","Return `200 OK`"], resources:[], concept:"<strong>HTTP is text over TCP.</strong> Frameworks just parse this text."},
+      {num:12, date:"Jun 9", title:"Keep‑alive, pipelining, and concurrency", type:"learn", tasks:["Add `Connection: keep-alive` support","Test with multiple requests","Understand `req.socket`","Measure latency"], resources:[], concept:"<strong>Keep‑alive</strong> avoids repeated TCP handshakes – essential for performance."},
+      {num:13, date:"Jun 10", title:"Build the raw HTTP server + TLS", type:"build", tasks:["Add routing: `/`, `/health`, `/echo`","Serve static file","Handle 404 and 500","Wrap with TLS"], resources:[], concept:"<strong>Load balancers</strong> (L4 vs L7) – your raw server can be behind an L4 balancer."},
+      {num:14, date:"Jun 11", title:"Ship Day 2 – Raw HTTP & TLS", type:"ship", tasks:["Push to GitHub with `curl` examples","Post: 'I built an HTTP server from scratch.'","Add a diagram of TCP+TLS+HTTP stack","Deploy to Railway"], resources:[], concept:"<strong>Networks are everywhere.</strong> Every request passed through all these layers."}
+    ]
+  },
+  // WEEK 3 – Express & Middleware
+  { id:3, title:"Express, Middleware & Concurrency", dates:"Jun 12 – Jun 18", phase:"Foundation", phaseColor:"blue",
+    goal:"Master Express, but also understand thread scheduling, race conditions, and production patterns.",
+    project:{name:"Auth API with rate limiting & graceful shutdown", desc:"JWT auth, role middleware, Redis rate limiter, and OS signal handling.", features:["Express","JWT","Zod","Helmet","Rate limiting with Redis","Graceful shutdown"]},
+    shipChecklist:["Deploy to Railway","Write OpenAPI docs","Post Twitter thread on middleware design"],
+    days:[
+      {num:15, date:"Jun 12", title:"Express middleware pipeline", type:"learn", tasks:["Create custom logger middleware","Write `requireAuth` middleware","Chain 3 middleware","Understand `req`, `res`, `next`"], resources:[{label:"Express middleware guide",url:"https://expressjs.com/en/guide/using-middleware.html"}], concept:"<strong>Middleware = function pipeline</strong>. Order matters – security first."},
+      {num:16, date:"Jun 13", title:"JWT & authentication deep dive", type:"learn", tasks:["Sign/verify JWTs","Add `authenticate` middleware","Store user in `req.user`","Learn about refresh tokens"], resources:[{label:"JWT.io",url:"https://jwt.io"}], concept:"<strong>JWT</strong> is stateless. No session store needed, but revocation is hard – use short expiry + refresh."},
+      {num:17, date:"Jun 14", title:"Input validation with Zod", type:"learn", tasks:["Define user schema","Build `validate(schema)` middleware","Return 400 with field errors","Why client validation is not enough"], resources:[{label:"Zod docs",url:"https://zod.dev"}], concept:"<strong>Never trust the client.</strong> Validate everything server‑side."},
+      {num:18, date:"Jun 15", title:"Graceful shutdown & OS signals", type:"learn", tasks:["Listen for SIGTERM, SIGINT","Stop accepting new requests","Close DB connections","Set a timeout (30s)"], resources:[], concept:"<strong>Graceful shutdown</strong> prevents data corruption. Production requirement."},
+      {num:19, date:"Jun 16", title:"Rate limiting & concurrency safety", type:"learn", tasks:["Implement token bucket with Redis","Test with 1000 parallel requests","Use `async` locks","Understand race conditions"], resources:[], concept:"<strong>Redis atomic ops</strong> avoid race conditions. `INCR` is atomic."},
+      {num:20, date:"Jun 17", title:"Build Auth API with all patterns", type:"build", tasks:["/register, /login, /profile","Add /refresh token","Redis rate limiter","Graceful shutdown handlers","Deploy with `NODE_ENV=production`"], resources:[], concept:"<strong>Production auth</strong> = short‑lived tokens + refresh + rate limiting + shutdown."},
+      {num:21, date:"Jun 18", title:"Ship Day 3 – Auth API deployed", type:"ship", tasks:["Deploy to Railway","Post live URL + sample cURL","Write thread on auth design","Add `/health` endpoint"], resources:[], concept:"<strong>Health checks</strong> = liveness + readiness. Return 503 if DB is down."}
+    ]
+  },
+  // WEEK 4 – PostgreSQL Internals
+  { id:4, title:"PostgreSQL & Database Internals", dates:"Jun 19 – Jun 25", phase:"Databases", phaseColor:"teal",
+    goal:"Not just SQL – understand storage engines, WAL, MVCC, and isolation levels.",
+    project:{name:"Blog API with explicit isolation", desc:"Blog with users, posts, comments. Use transactions, demonstrate MVCC.", features:["PostgreSQL","node-postgres","Migrations","Transactions & isolation","EXPLAIN ANALYZE"]},
+    shipChecklist:["Deploy Neon.tech + Railway","Write a blog post about MVCC","Include EXPLAIN screenshots"],
+    days:[
+      {num:22, date:"Jun 19", title:"Storage engines: heap, indexes, WAL", type:"learn", tasks:["Read about PostgreSQL heap","Create table, view `pg_class`","Enable `log_statement`","Simulate crash recovery"], resources:[{label:"PostgreSQL internals",url:"https://www.interdb.jp/pg/"}], concept:"<strong>Write‑Ahead Log (WAL)</strong>: every change is logged before data pages are written."},
+      {num:23, date:"Jun 20", title:"MVCC & transaction isolation", type:"learn", tasks:["Open two psql sessions, `BEGIN;`","Update row, see visibility","Set `READ COMMITTED` vs `REPEATABLE READ`","Notice `xmin`, `xmax`"], resources:[], concept:"<strong>MVCC</strong> keeps multiple versions. Readers don't block writers."},
+      {num:24, date:"Jun 21", title:"Indexes: B‑tree, hash, BRIN", type:"learn", tasks:["Create B‑tree index, `EXPLAIN ANALYZE`","Compare seq scan vs index scan","Add hash index","Partial indexes"], resources:[], concept:"<strong>B‑tree</strong> is default – O(log N). Partial indexes save space."},
+      {num:25, date:"Jun 22", title:"Transactions & locking", type:"learn", tasks:["Use `BEGIN; ... COMMIT;`","Row‑level locks with `FOR UPDATE`","Avoid deadlocks","Measure transaction throughput"], resources:[], concept:"<strong>Deadlocks</strong> occur when two transactions wait for each other. Postgres auto‑kills one."},
+      {num:26, date:"Jun 23", title:"EXPLAIN & query optimization", type:"learn", tasks:["`EXPLAIN (ANALYZE, BUFFERS)`","Find seq scans","Use `pg_stat_statements`","Add composite index"], resources:[], concept:"<strong>Optimizer</strong> uses statistics. `EXPLAIN` shows plan – look for 'Seq Scan'."},
+      {num:27, date:"Jun 24", title:"Build Blog API with transactions", type:"build", tasks:["Users, posts, comments","Create post + first comment in a transaction","Use `SELECT FOR UPDATE`","Soft delete with `deleted_at`"], resources:[], concept:"<strong>Atomic operations</strong>: all or nothing. Use transactions when multiple writes must succeed together."},
+      {num:28, date:"Jun 25", title:"Ship Day 4 – Blog API with internals", type:"ship", tasks:["Deploy, run migrations","Post an EXPLAIN screenshot","Tweet about MVCC","Write article: Isolation levels in practice"], resources:[], concept:"<strong>Understand your DB</strong> – you'll fix performance issues others ignore."}
+    ]
+  },
+  // WEEK 5 – Advanced SQL + Prisma
+  { id:5, title:"Advanced SQL & Prisma ORM", dates:"Jun 26 – Jul 2", phase:"Databases", phaseColor:"teal",
+    goal:"SQL superpowers – recursive CTEs, window functions, materialized views – and use Prisma.",
+    project:{name:"E‑commerce analytics API", desc:"Product catalog, orders, running totals, hierarchical categories, materialized views.", features:["Recursive CTE","Window functions","Materialized views","Prisma ORM"]},
+    shipChecklist:["Deploy, include analytics endpoint","Tweet a recursive CTE example","Show before/after using materialized view"],
+    days:[
+      {num:29, date:"Jun 26", title:"Common Table Expressions (CTEs) & recursion", type:"learn", tasks:["Write non‑recursive CTE","Recursive CTE: list subcategories","Build org chart query","Use `WITH RECURSIVE`"], resources:[], concept:"<strong>Recursive CTE</strong> solves tree/hierarchy queries (categories, comments)."},
+      {num:30, date:"Jun 27", title:"Window functions – ROW_NUMBER, RANK, LAG", type:"learn", tasks:["`ROW_NUMBER() OVER (...)`","Running total with `SUM(amount) OVER (...)`","`LAG` to compare","Eliminate N+1 queries"], resources:[], concept:"<strong>Window functions</strong> operate on a set of rows without collapsing them. Perfect for rankings."},
+      {num:31, date:"Jun 28", title:"Materialized views & `REFRESH`", type:"learn", tasks:["Create `mv_daily_sales`","`REFRESH MATERIALIZED VIEW CONCURRENTLY`","Compare query time","Use with cron"], resources:[], concept:"<strong>Materialized views</strong> store pre‑computed results. Refresh periodically – faster than caching for complex reports."},
+      {num:32, date:"Jun 29", title:"Prisma ORM – schema, relations, raw SQL", type:"learn", tasks:["Define `User`, `Product`, `Order`","Run `prisma migrate dev`","Use `include` to fetch relations","Fallback to `$queryRaw`"], resources:[], concept:"<strong>ORM</strong> gives type safety and migrations, but sometimes raw SQL is needed."},
+      {num:33, date:"Jun 30", title:"Query optimization with Prisma", type:"learn", tasks:["Enable `debug` logging","Use `select` to limit fields","Add `@@index` in schema","`prisma.$queryRaw` for materialized view"], resources:[], concept:"<strong>Indexes in schema</strong> – Prisma translates `@@index` to SQL."},
+      {num:34, date:"Jul 1", title:"Build E‑commerce analytics API", type:"build", tasks:["GET /products with category tree","GET /sales/running-total","Materialized view for reports","Admin endpoint to refresh view"], resources:[], concept:"<strong>Advanced SQL</strong> reduces application code and network round trips."},
+      {num:35, date:"Jul 2", title:"Ship Day 5 – Advanced SQL API", type:"ship", tasks:["Deploy with migrations","Share a query with `ROW_NUMBER()`","Post your recursive CTE","Add `EXPLAIN` output to README"], resources:[], concept:"<strong>You now write SQL</strong> that 90% of backend devs cannot. That's your edge."}
+    ]
+  },
+  // WEEK 6 – Reliability Engineering
+  { id:6, title:"Reliability Engineering – Build systems that survive", dates:"Jul 3 – Jul 9", phase:"Professional", phaseColor:"amber",
+    goal:"Learn SLOs, error budgets, circuit breakers, retries, and chaos testing.",
+    project:{name:"Unreliable API with circuit breaker", desc:"Random failing service with circuit breaker, retry, and metrics.", features:["Circuit breaker (opossum)","Retries with backoff","Prometheus metrics","Chaos monkey"]},
+    shipChecklist:["Deploy with /metrics endpoint","Chaos test","Post error budget calculations"],
+    days:[
+      {num:36, date:"Jul 3", title:"SLOs, SLIs, error budgets", type:"learn", tasks:["Define SLI: availability","Set SLO: 99.9%","Calculate remaining error budget","Learn why budget drives decisions"], resources:[], concept:"<strong>Error budget</strong> = 1 – SLO. If budget is exhausted, stop feature releases."},
+      {num:37, date:"Jul 4", title:"Retries & exponential backoff", type:"learn", tasks:["Implement retry with `setTimeout`","Add jitter","Set max retries","Understand idempotency"], resources:[], concept:"<strong>Retries + backoff</strong> increase success rate, but must be idempotent."},
+      {num:38, date:"Jul 5", title:"Circuit breaker pattern", type:"learn", tasks:["Use `opossum` circuit breaker","Configure failure threshold","Wrap external call","Log state changes"], resources:[], concept:"<strong>Circuit breaker</strong> prevents cascading failures. When downstream is sick, fail fast."},
+      {num:39, date:"Jul 6", title:"Timeouts & deadlines", type:"learn", tasks:["Set request timeout (5s)","Use `AbortController`","Propagate context deadlines","Cancel DB queries on timeout"], resources:[], concept:"<strong>Deadlines</strong> are the most important reliability feature."},
+      {num:40, date:"Jul 7", title:"Chaos engineering principles", type:"learn", tasks:["Middleware that returns 500 (5% of requests)","Run load test, see circuit open","Measure availability drop","Document findings"], resources:[], concept:"<strong>Chaos engineering</strong> proactively injects failures to verify resilience."},
+      {num:41, date:"Jul 8", title:"Build Reliability API", type:"build", tasks:["API with `/unreliable`","Wrap with circuit breaker + retry","Add `/metrics` endpoint","Add `/health/deep`"], resources:[], concept:"<strong>Observability + reliability</strong> = you know when the circuit is open."},
+      {num:42, date:"Jul 9", title:"Ship Day 6 – Chaos & resilience", type:"ship", tasks:["Deploy, run chaos test","Post video of circuit opening","Tweet about error budgets","Add SLO dashboard"], resources:[], concept:"<strong>Reliability is designed, not accidental.</strong> You now think like an SRE."}
+    ]
+  },
+  // WEEK 7 – Performance Engineering
+  { id:7, title:"Performance Engineering – From microseconds to milliseconds", dates:"Jul 10 – Jul 16", phase:"Professional", phaseColor:"amber",
+    goal:"Measure everything, profile CPU/memory, understand cache locality, reduce tail latency.",
+    project:{name:"High‑performance URL shortener", desc:"URL shortener with LRU cache, Redis, and load testing to prove p99 < 10ms.", features:["Redis","LRU cache","node:cluster","Artillery load test","p99 measurement"]},
+    shipChecklist:["Load test report (p50, p95, p99)","Profile flame graph","Post performance optimisations"],
+    days:[
+      {num:43, date:"Jul 10", title:"CPU caches, memory locality, branch prediction", type:"learn", tasks:["Row‑wise vs column‑wise matrix loop","Measure time","Read 'What every programmer should know'","Cache lines (64 bytes)"], resources:[], concept:"<strong>Cache locality</strong> explains why `O(n)` can beat `O(log n)`."},
+      {num:44, date:"Jul 11", title:"Profiling Node.js – `--inspect` and flame graphs", type:"learn", tasks:["Run app with `node --inspect`","Take CPU profile in DevTools","Generate flame graph","Identify hot functions"], resources:[], concept:"<strong>Profile before optimising</strong>. Don't guess – measure."},
+      {num:45, date:"Jul 12", title:"Redis caching strategies (cache‑aside, write‑through)", type:"learn", tasks:["Implement cache‑aside","Add LRU eviction","Set TTLs","Cache invalidation on update"], resources:[], concept:"<strong>Cache‑aside</strong> is simplest. Write‑through ensures consistency but adds latency."},
+      {num:46, date:"Jul 13", title:"Load testing with k6 or Artillery", type:"learn", tasks:["Write a k6 script: 100 VUs for 30s","Measure p95, p99","Run against your shortener","Graph results"], resources:[], concept:"<strong>p99 latency</strong> matters more than average."},
+      {num:47, date:"Jul 14", title:"Node.js cluster and worker_threads", type:"learn", tasks:["Use `cluster` to fork on all cores","Compare throughput","Understand IPC","Use `worker_threads` for CPU tasks"], resources:[], concept:"<strong>Cluster</strong> scales on multi‑core machines. State not shared."},
+      {num:48, date:"Jul 15", title:"eBPF introduction (for observability)", type:"learn", tasks:["Install `bpftrace`","Run `bpftrace -e 'kprobe:tcp_sendmsg ...'`","Understand eBPF","Node can be instrumented"], resources:[], concept:"<strong>eBPF</strong> lets you run safe kernel code. Used by modern observability tools."},
+      {num:49, date:"Jul 16", title:"Ship Day 7 – Performance benchmark", type:"ship", tasks:["Deploy shortener with LRU + Redis","Run k6, capture p99","Post results with numbers","Add flame graph to README"], resources:[], concept:"<strong>Performance is a feature.</strong> Now you can prove it with numbers."}
+    ]
+  },
+  // WEEK 8 – Message Queues (FIXED Day 54)
+  { id:8, title:"Message Queues & Event‑Driven Architecture", dates:"Jul 17 – Jul 23", phase:"Professional", phaseColor:"amber",
+    goal:"Decouple services with BullMQ, understand exactly‑once, dead letter queues, Sagas.",
+    project:{name:"Order processing with BullMQ & DLQ", desc:"Order API pushes to queue, workers process inventory/payment/notification.", features:["BullMQ","Idempotency with Redis","Dead letter queue","Exponential backoff","Event sourcing"]},
+    shipChecklist:["Diagram event flow","Post about exactly‑once vs at‑least‑once","Deploy with Bull Board"],
+    days:[
+      {num:50, date:"Jul 17", title:"BullMQ – producers, workers, queues", type:"learn", tasks:["Install BullMQ, Redis","Add job `sendEmail`","Worker processes job","Add `delay`, `attempts`"], resources:[], concept:"<strong>Queue decouples</strong> producer from worker. HTTP response is fast, work happens later."},
+      {num:51, date:"Jul 18", title:"Idempotent consumers – exactly‑once processing", type:"learn", tasks:["Store processed job IDs in Redis (24h TTL)","Skip if already seen","Test by manually retrying","Understand at‑least‑once"], resources:[], concept:"<strong>Exactly‑once</strong> is not guaranteed by the queue – you must implement idempotency."},
+      {num:52, date:"Jul 19", title:"Dead letter queues & failure handling", type:"learn", tasks:["Move failed jobs after 3 attempts to 'failed' queue","Admin endpoint to view DLQ","Manual retry from DLQ","Log failures with context"], resources:[], concept:"<strong>Dead letter queue</strong> holds poison messages. Without it, failures disappear."},
+      {num:53, date:"Jul 20", title:"Event sourcing basics", type:"learn", tasks:["Store events (OrderPlaced, PaymentConfirmed) in Postgres","Rebuild state by replaying events","Understand projection","Event versioning"], resources:[], concept:"<strong>Event sourcing = audit log + ability to time‑travel.</strong>"},
+      // --- FIXED DAY 54 ---
+      {num:54, date:"Jul 21", title:"Saga pattern (compensating transactions)", type:"learn", tasks:["Understand compensating transactions","Design a simple saga: BookHotel → ReserveCar → if fail, cancel hotel","Implement each step with a compensation action","Compare to 2PC"], resources:[], concept:"<strong>Saga</strong> – each step has a compensating action. No distributed transaction needed."},
+      {num:55, date:"Jul 22", title:"Build Order Processing System", type:"build", tasks:["API: POST /order → queues OrderPlaced","Inventory worker: reserves stock","Payment worker (mock)","Notification worker","Idempotency keys (orderId)","DLQ for any failed step"], resources:[], concept:"<strong>Choreographed saga</strong> – each service reacts to events, no central coordinator."},
+      {num:56, date:"Jul 23", title:"Ship Day 8 – Event‑driven system", type:"ship", tasks:["Deploy, send a real order","Post architecture diagram","Tweet about idempotent workers","Add link to Bull Board (job monitoring UI)"], resources:[], concept:"<strong>Event‑driven systems scale</strong> because services are independent."}
+    ]
+  },
+  // WEEK 9 – Distributed Systems (Raft)
+  { id:9, title:"Distributed Systems – Raft, CAP, Time", dates:"Jul 24 – Jul 30", phase:"Capstone", phaseColor:"green",
+    goal:"Understand consensus, leader election, logical clocks, and build a simplified Raft KV store.",
+    project:{name:"Raft KV store (simplified)", desc:"KV store with leader election, log replication.", features:["Leader election","Log replication","State machine","CAP trade‑off"]},
+    shipChecklist:["Simulate network partition","Write blog: 'I built Raft'","Post diagram"],
+    days:[
+      {num:57, date:"Jul 24", title:"CAP theorem & consistency models", type:"learn", tasks:["Understand Consistency, Availability, Partition tolerance","CP vs AP systems","Eventual vs strong consistency","Read DDIA Chapter 5"], resources:[], concept:"<strong>During a network partition</strong> you must choose consistency or availability."},
+      {num:58, date:"Jul 25", title:"Raft consensus – leader election", type:"learn", tasks:["Read Raft paper (Section 5)","Simulate nodes with TCP","Implement election timeout, heartbeats","Log term and vote counts"], resources:[], concept:"<strong>Raft</strong> uses randomized election timeouts to avoid split votes."},
+      {num:59, date:"Jul 26", title:"Log replication & commit", type:"learn", tasks:["AppendEntries RPC","Leader replicates to followers","Majority commit","Apply to state machine (Map)"], resources:[], concept:"<strong>Majority commit</strong> ensures durability."},
+      {num:60, date:"Jul 27", title:"Logical clocks & ordering", type:"learn", tasks:["Lamport timestamps: each event increments","Vector clocks for causality","Why physical time fails","Implement Lamport clock"], resources:[], concept:"<strong>Lamport clock</strong> provides total order, but not causality."},
+      {num:61, date:"Jul 28", title:"Distributed transactions – 2PC vs Saga", type:"learn", tasks:["Simulate two‑phase commit","Understand blocking problem","Compare to saga","Learn about XA"], resources:[], concept:"<strong>2PC</strong> is atomic but blocking. Rarely used in microservices."},
+      {num:62, date:"Jul 29", title:"Build simple Raft KV store", type:"build", tasks:["3 nodes, TCP communication","HTTP client to leader","`PUT` and `GET`","Leader failover","Add debug logs"], resources:[], concept:"<strong>Consensus is hard.</strong> Even a toy implementation teaches you why etcd is complex."},
+      {num:63, date:"Jul 30", title:"Ship Day 9 – Raft KV store", type:"ship", tasks:["Run 3 nodes, kill leader, see election","Post video of failover","Tweet about distributed consensus","Add CAP theorem section to README"], resources:[], concept:"<strong>You now understand</strong> what powers etcd, Consul, and many databases."}
+    ]
+  },
+  // WEEK 10 – Build Infrastructure (Redis clone, Kafka clone)
+  { id:10, title:"Build Infrastructure – Redis & Kafka clones", dates:"Jul 31 – Aug 6", phase:"Capstone", phaseColor:"green",
+    goal:"Re‑implement core parts of Redis and a log‑based message broker.",
+    project:{name:"Tiny Redis + Tiny Kafka (log broker)", desc:"RESP‑compliant Redis clone and Kafka‑like persistent log.", features:["RESP protocol","Key‑value store with expiry","Append‑only log","Partitions","Offset tracking"]},
+    shipChecklist:["Both projects on GitHub","Post side‑by‑side comparison","Tweet: 'Building my own Redis taught me more'"],
+    days:[
+      {num:64, date:"Jul 31", title:"Redis protocol (RESP) parser", type:"learn", tasks:["Read RESP spec","Write parser from net socket","Parse `*2\\r\\n$4\\r\\nLLEN\\r\\n$3\\r\\nmylist\\r\\n`","Respond with `:5\\r\\n`"], resources:[], concept:"<strong>Redis is just a TCP server speaking a simple protocol.</strong>"},
+      {num:65, date:"Aug 1", title:"Implement basic Redis commands", type:"build", tasks:["SET, GET, DEL","EXPIRE with TTL","INCR (thread‑safe)","Handle binary data"], resources:[], concept:"<strong>Single‑threaded event loop</strong> makes Redis atomic."},
+      {num:66, date:"Aug 2", title:"Persistence – RDB snapshot or AOF", type:"learn", tasks:["Write in‑memory snapshot to disk (JSON)","Load on startup","(Optional) Append‑only file","Understand trade‑offs"], resources:[], concept:"<strong>RDB</strong> is compact but lossy. <strong>AOF</strong> is durable but larger."},
+      {num:67, date:"Aug 3", title:"Kafka clone – log segments", type:"learn", tasks:["Topic = directory, partition = file segment","Append messages with offset","Read from offset","Implement `tail` (live read)"], resources:[], concept:"<strong>Kafka is just a commit log.</strong> Sequential writes are fast."},
+      {num:68, date:"Aug 4", title:"Producer & consumer API", type:"build", tasks:["POST /topics/:name – append message","GET /topics/:name/consume?offset=0","Track consumer offsets","Multiple consumers"], resources:[], concept:"<strong>Offsets are the key</strong> – consumers control their own progress."},
+      {num:69, date:"Aug 5", title:"Add partitioning", type:"build", tasks:["Hash key to partition (mod N)","Each partition separate file","Produce/consume with partition","Basic rebalancing"], resources:[], concept:"<strong>Partitions</strong> enable parallelism. Order is guaranteed per partition."},
+      {num:70, date:"Aug 6", title:"Ship Day 10 – Redis & Kafka clones", type:"ship", tasks:["Push both projects","Demo `redis-cli` talking to your clone","Tweet: 'I built a Redis and Kafka clone'","Add benchmark vs real"], resources:[], concept:"<strong>Building clones</strong> is the ultimate learning tool."}
+    ]
+  },
+  // WEEK 11 – Reading Great Codebases + API Design
+  { id:11, title:"Reading Great Codebases & API Design", dates:"Aug 7 – Aug 13", phase:"Professional", phaseColor:"amber",
+    goal:"Learn from Redis, Nginx, and PostgreSQL source – and design beautiful APIs.",
+    project:{name:"OpenAPI‑documented API with HATEOAS", desc:"Redesign your best API with hypermedia links, versioning, rate limit headers.", features:["OpenAPI","HATEOAS","API versioning","Link header pagination","ETags"]},
+    shipChecklist:["Live /docs endpoint","Postman collection","Tweet: 'What I learned reading Redis source'"],
+    days:[
+      {num:71, date:"Aug 7", title:"How to read source code (Redis)", type:"learn", tasks:["Clone redis/redis","Find `server.h`","Explore event loop (`ae.c`)","Read command table"], resources:[], concept:"<strong>Source code is the ultimate docs.</strong>"},
+      {num:72, date:"Aug 8", title:"Nginx architecture (event loop, modules)", type:"learn", tasks:["Read 'Inside NGINX' article","Look at module system","Understand 10k connections","Compare to Node.js"], resources:[], concept:"<strong>Nginx uses epoll/kqueue</strong> – same principles as Node."},
+      {num:73, date:"Aug 9", title:"PostgreSQL source – MVCC", type:"learn", tasks:["Find `heapam.h`, `heapam.c`","Explore `xmin`, `xmax` logic","Look at `vacuumlazy.c`","See how indexes are stored"], resources:[], concept:"<strong>You don't need to read it all</strong> – browsing key files gives intuition."},
+      {num:74, date:"Aug 10", title:"API design – HATEOAS, versioning, headers", type:"learn", tasks:["Add `Link: <...>; rel='next'`","Include `X-Total-Count`","Implement `ETag` with sha256","Return `304 Not Modified`"], resources:[], concept:"<strong>Hypermedia APIs</strong> tell clients what actions are possible."},
+      {num:75, date:"Aug 11", title:"OpenAPI 3.0 annotations", type:"learn", tasks:["Use `swagger-jsdoc`","Write JSDoc annotations","Serve SwaggerUI at `/docs`","Generate client SDK"], resources:[], concept:"<strong>Documentation as code</strong> prevents drift."},
+      {num:76, date:"Aug 12", title:"Build OpenAPI API", type:"build", tasks:["Take Week 5 API, add full OpenAPI","HATEOAS links (next, prev, self)","Version: `/v1` and `/v2`","Deprecation header"], resources:[], concept:"<strong>Professional APIs</strong> are self‑documenting and versioned."},
+      {num:77, date:"Aug 13", title:"Ship Day 11 – API Design", type:"ship", tasks:["Deploy API, share /docs URL","Postman collection public link","Tweet about good API design","Add link to GitHub"], resources:[], concept:"<strong>APIs are products.</strong> Developers' first impression is your docs."}
+    ]
+  },
+  // WEEK 12 – Security & Zero‑Trust
+  { id:12, title:"Security & Zero‑Trust Production", dates:"Aug 14 – Aug 20", phase:"Production", phaseColor:"red",
+    goal:"Implement OWASP Top 10 defenses, zero‑trust, secrets management, and audit logging.",
+    project:{name:"Hardened API with audit log", desc:"Security headers, rate limiting, JWT, audit logs, secrets from Vault.", features:["Helmet","Rate limiting","Audit log (DB)","Secrets from Doppler","Account lockout"]},
+    shipChecklist:["Run npm audit fix","Post security checklist","Tweet about zero‑trust"],
+    days:[
+      {num:78, date:"Aug 14", title:"OWASP Top 10 deep dive", type:"learn", tasks:["Read OWASP Top 10 2021","Check your APIs against each","Use `npm audit` and `snyk`","Understand dependency vulns"], resources:[], concept:"<strong>Most breaches come from known vulnerabilities.</strong>"},
+      {num:79, date:"Aug 15", title:"Zero‑trust architecture", type:"learn", tasks:["Assume breach: verify every request","Use mTLS between services","Short‑lived JWTs, per‑request authz","No implicit trust inside VPC"], resources:[], concept:"<strong>Zero‑trust</strong> is a mindset. Every request must be authenticated and authorised."},
+      {num:80, date:"Aug 16", title:"Secrets management (Doppler/Vault)", type:"learn", tasks:["Sign up Doppler free tier","Move DB, Redis, JWT secrets to Doppler","Rotate a secret, see app reload","Never store `.env` in git"], resources:[], concept:"<strong>Environment variables are not secure enough.</strong> Use a secrets manager."},
+      {num:81, date:"Aug 17", title:"Audit logging", type:"learn", tasks:["Log all auth attempts (user, IP, success/fail)","Log access to sensitive data","Store logs in separate table","Implement log retention"], resources:[], concept:"<strong>Audit logs</strong> are required for compliance. Log who, what, when, where."},
+      {num:82, date:"Aug 18", title:"Brute force & account lockout", type:"learn", tasks:["Store failed attempts in Redis","Lock after 5 fails for 15 min","Add CAPTCHA (optional)","Notify user on lockout"], resources:[], concept:"<strong>Account lockout</strong> prevents brute force but enables DoS. Use CAPTCHA."},
+      {num:83, date:"Aug 19", title:"Harden your API", type:"build", tasks:["Add helmet, CORS (restrict origins)","Rate limiting per IP, per user","Audit log middleware","Security headers (HSTS)"], resources:[], concept:"<strong>Defense in depth</strong> – multiple layers of security."},
+      {num:84, date:"Aug 20", title:"Ship Day 12 – Security Audit", type:"ship", tasks:["Write `SECURITY.md`","Post your security checklist","Deploy hardened API","Share Snyk/npm audit report"], resources:[], concept:"<strong>Security is a process, not a feature.</strong>"}
+    ]
+  },
+  // WEEK 13 – Capstone I: Scalable URL Shortener
+  { id:13, title:"Capstone I – Production URL Shortener", dates:"Aug 21 – Aug 27", phase:"Capstone", phaseColor:"green",
+    goal:"Combine networking, caching, reliability, performance, and observability.",
+    project:{name:"Global URL shortener with p99 < 10ms", desc:"Redis caching, Postgres, circuit breaker for analytics, OpenTelemetry.", features:["Redis cache","LRU in‑memory","Circuit breaker","OpenTelemetry traces","Prometheus metrics","k6 load test"]},
+    shipChecklist:["Load test report","Tracing screenshot (Jaeger)","Deploy live URL","Post architecture deep‑dive"],
+    days:[
+      {num:85, date:"Aug 21", title:"Design for scale – read/write split", type:"learn", tasks:["Estimate 100M redirects/month","Read path: cache + fallback DB","Write path: DB + invalidate cache","Use 302 redirect for tracking"], resources:[], concept:"<strong>Read‑heavy systems</strong> must cache aggressively."},
+      {num:86, date:"Aug 22", title:"Implement high‑performance redirect", type:"build", tasks:["Redis GET → fallback DB → set Redis","Add in‑memory LRU cache as L1","Measure p99 under load","Use stale‑while‑revalidate"], resources:[], concept:"<strong>Multi‑level caching</strong> reduces latency even further."},
+      {num:87, date:"Aug 23", title:"Analytics pipeline (asynchronous)", type:"build", tasks:["On redirect: queue 'click' event to BullMQ","Worker updates Postgres","Circuit breaker for analytics","Ensure redirect never blocked"], resources:[], concept:"<strong>Analytics must not affect the critical path.</strong>"},
+      {num:88, date:"Aug 24", title:"OpenTelemetry tracing", type:"learn", tasks:["Install `@opentelemetry/sdk-node`","Instrument incoming HTTP","Add spans for Redis, DB, queue","Export to Jaeger"], resources:[], concept:"<strong>Distributed tracing</strong> shows you where time is spent."},
+      {num:89, date:"Aug 25", title:"SLO & error budget dashboard", type:"build", tasks:["Expose /metrics (Prometheus)","Track `requests_total`, `redirect_errors_total`","Calculate availability = 1 - (errors/total)","Visualize with Grafana"], resources:[], concept:"<strong>Error budget</strong> alerts you before you break your SLO."},
+      {num:90, date:"Aug 26", title:"Load test & optimise", type:"build", tasks:["k6 script with 1000 VUs, 30s","Measure p95, p99 (target < 10ms)","Profile with `--inspect`","Optimise: reduce JSON parsing"], resources:[], concept:"<strong>If you can't measure it, you can't improve it.</strong>"},
+      {num:91, date:"Aug 27", title:"Ship Day 13 – URL Shortener", type:"ship", tasks:["Deploy to Railway+Redis+Postgres","Add live demo URL","Post load test results and SLO dashboard","Write case study – trade‑offs"], resources:[], concept:"<strong>This project alone</strong> can land you a junior+ role."}
+    ]
+  },
+  // WEEK 14 – Capstone II: SaaS + Engineering Economics
+  { id:14, title:"Capstone II – SaaS API Platform & Economics", dates:"Aug 28 – Sep 5", phase:"Capstone", phaseColor:"green",
+    goal:"Build a multi‑tenant SaaS API with billing, team management, usage quotas – and understand the economics.",
+    project:{name:"Developer API Platform (SaaS)", desc:"Workspaces, API keys, usage metering, Stripe subscriptions, webhooks.", features:["Multi‑tenancy","API key auth","Usage metering (Redis)","Stripe test mode","Webhook delivery","Team invites","Economics analysis"]},
+    shipChecklist:["Live SaaS demo","Economics: cost per API call, break‑even point","Tweet about engineering economics","Final portfolio repo"],
+    days:[
+      {num:92, date:"Aug 28", title:"Multi‑tenancy & RBAC", type:"learn", tasks:["Workspace model (id, name)","User belongs to workspace (join table)","Row‑level security via queries","Roles: admin, member"], resources:[], concept:"<strong>Multi‑tenancy</strong> is the foundation of SaaS. Isolate by design."},
+      {num:93, date:"Aug 29", title:"API key authentication & metering", type:"build", tasks:["Generate API keys (prefix `sk_`)","Hash and store in DB","Middleware: validate key, get workspace","Increment usage counter in Redis","Check quota limit"], resources:[], concept:"<strong>API keys</strong> identify the application, not the user. Metering enables billing."},
+      {num:94, date:"Aug 30", title:"Stripe subscription (test mode)", type:"build", tasks:["Create Stripe product 'Pro plan'","Webhook `customer.subscription.updated`","Update workspace plan in DB","Handle payment failures (downgrade)"], resources:[], concept:"<strong>Billing is a core engineering feature.</strong> Test mode lets you simulate."},
+      {num:95, date:"Aug 31", title:"Webhook delivery & idempotency", type:"build", tasks:["Workspaces can register webhook URL","POST to webhook on event (e.g. `api_key.created`)","Idempotency key (eventId)","Retry with backoff, DLQ"], resources:[], concept:"<strong>Webhooks turn your API into a platform.</strong>"},
+      {num:96, date:"Sep 1", title:"Team invites via email", type:"build", tasks:["Generate invite token (JWT, 24h expiry)","Send email with Nodemailer","Accept endpoint adds user to workspace","Prevent reuse"], resources:[], concept:"<strong>Invites must be single‑use</strong> and have expiry."},
+      {num:97, date:"Sep 2", title:"Observability for SaaS", type:"build", tasks:["OpenTelemetry traces for all operations","Prometheus metrics per workspace","Log structured (pino)","Build basic Grafana dashboard"], resources:[], concept:"<strong>Observability for multi‑tenancy</strong> – you need per‑workspace data."},
+      {num:98, date:"Sep 3", title:"Engineering Economics – cost analysis", type:"learn", tasks:["Calculate monthly cost of Postgres, Redis, CPU","Estimate cost per API request ($0.00002)","Set pricing: Pro plan $29 for 1M requests","Compute break‑even point","Write economic trade‑offs in README"], resources:[], concept:"<strong>Caching, sharding, Kafka</strong> are economic decisions. Now you can justify them."},
+      {num:99, date:"Sep 4", title:"Portfolio & Job Strategy", type:"build", tasks:["Update GitHub profile README with all 14 projects","Write blog: '100 days, 14 projects, job ready'","Apply to 3 companies today","Connect on LinkedIn"], resources:[], concept:"<strong>Proof of work speaks louder than a resume.</strong>"},
+      {num:100, date:"Sep 5", title:"Day 100 – Final Ship & Reflection", type:"ship", tasks:["Post long thread: everything built, deepest lesson","Thank the community","Celebrate! 🎉","Set next goal"], resources:[], concept:"<strong>You made it.</strong> You are not the same engineer who started 100 days ago."}
+    ]
+  }
+];
+
+// --------------------------------------------------------------
+// RENDER LOGIC (same as before, but with corrected data)
+// --------------------------------------------------------------
+const PHASES = [
+  { name: 'All', color: 'all' },
+  { name: 'Foundation (Wk 1–3)', color: 'blue' },
+  { name: 'Databases (Wk 4–5)', color: 'teal' },
+  { name: 'Professional (Wk 6–8)', color: 'amber' },
+  { name: 'Distributed & Build (Wk 9–10)', color: 'purple' },
+  { name: 'API & Security (Wk 11–12)', color: 'red' },
+  { name: 'Capstone (Wk 13–14)', color: 'green' },
+];
+const PHASE_WEEKS = { all: null, blue: [1,2,3], teal: [4,5], amber: [6,7,8], purple: [9,10], red: [11,12], green: [13,14] };
+
+let currentWeek = 1;
+let currentPhase = 'all';
+let completed = JSON.parse(localStorage.getItem('backend100_v4') || '{}');
+let expanded = {};
+
+function save() { localStorage.setItem('backend100_v4', JSON.stringify(completed)); }
+function getStats() {
+  let done = 0; WEEKS.forEach(w => w.days.forEach(d => { if (completed[d.num]) done++; }));
+  let streak = 0; for (let i = 100; i >= 1; i--) if (completed[i]) streak++; else break;
+  let shipped = 0; WEEKS.forEach(w => { let ld = w.days[w.days.length-1]; if (completed[ld.num]) shipped++; });
+  return { done, streak, shipped, left: 100 - done };
+}
+function updateHeader() {
+  let s = getStats();
+  document.getElementById('overall-pct').innerText = s.done + ' / 100 days';
+  document.getElementById('overall-bar').style.width = (s.done) + '%';
+  document.getElementById('stat-done').innerText = s.done;
+  document.getElementById('stat-streak').innerText = s.streak;
+  document.getElementById('stat-shipped').innerText = s.shipped;
+  document.getElementById('stat-left').innerText = s.left;
+}
+function getWeekDone(w) { return w.days.filter(d => completed[d.num]).length; }
+function renderPhaseNav() {
+  let nav = document.getElementById('phase-nav'); nav.innerHTML = '';
+  PHASES.forEach(p => {
+    let btn = document.createElement('button');
+    btn.className = 'phase-btn' + (currentPhase === p.color ? ' active' : '');
+    btn.innerText = p.name;
+    btn.onclick = () => { currentPhase = p.color; currentWeek = getVisibleWeeks()[0].id; renderAll(); };
+    nav.appendChild(btn);
+  });
+}
+function getVisibleWeeks() { return currentPhase === 'all' ? WEEKS : WEEKS.filter(w => PHASE_WEEKS[currentPhase]?.includes(w.id)); }
+function renderSidebar() {
+  let sb = document.getElementById('sidebar'); sb.innerHTML = '';
+  getVisibleWeeks().forEach(w => {
+    let done = getWeekDone(w), total = w.days.length, pct = Math.round(done/total*100), active = (w.id === currentWeek);
+    let div = document.createElement('div');
+    div.className = 'week-item' + (active ? ' active' : '');
+    div.innerHTML = `<div class="week-num mono">WEEK ${w.id} — ${w.phase.toUpperCase()}</div><div class="week-title">${w.title}</div><div class="week-dates mono">${w.dates}</div><div class="week-progress"><div class="week-bar"><div class="week-fill" style="width:${pct}%"></div></div><span class="week-pct">${pct}%</span></div><div><span class="week-project-badge">📦 ${w.project.name}</span></div>`;
+    div.onclick = () => { currentWeek = w.id; renderAll(); };
+    sb.appendChild(div);
+  });
+}
+function renderDayView() {
+  let dv = document.getElementById('day-view');
+  let week = WEEKS.find(w => w.id === currentWeek);
+  if (!week) return;
+  let html = `<div class="week-header"><div class="week-header-title">Week ${week.id}: ${week.title}</div><div class="week-header-meta mono">${week.dates} · Days ${week.days[0].num}–${week.days[week.days.length-1].num}</div></div><div class="week-goal"><strong>Weekly goal:</strong> ${week.goal}</div><div class="project-banner"><div class="project-title">📦 ${week.project.name}</div><div class="project-desc">${week.project.desc}</div><div class="project-features">${week.project.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}</div></div>`;
+  week.days.forEach(d => {
+    let isDone = !!completed[d.num], isOpen = !!expanded[d.num];
+    let typeClass = { learn: 'type-learn', build: 'type-build', ship: 'type-ship', review: 'type-review' }[d.type];
+    html += `<div class="day-card${isDone ? ' completed' : ''}" id="dc-${d.num}"><div class="day-card-header"><div class="day-check" onclick="toggleDone(${d.num}, event)">${isDone ? '<svg class="checkmark-svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div><span class="day-num-badge mono">Day ${d.num} · ${d.date}</span><span class="day-title">${d.title}</span><span class="day-type ${typeClass}">${d.type}</span><button class="day-expand" onclick="toggleExpand(${d.num}, event)">${isOpen ? '▲ hide' : '▼ show'}</button></div><div class="day-body${isOpen ? ' open' : ''}" id="db-${d.num}"><div class="day-body-inner">${d.type === 'ship' ? `<div class="ship-banner"><div class="ship-title">🚀 Ship Checklist</div><ul class="ship-checklist">${week.shipChecklist.map(i => `<li>${i}</li>`).join('')}</ul></div>` : ''}<div class="day-section"><div class="day-section-label">Today's tasks</div>${d.tasks.map(t => `<div class="day-task">${t}</div>`).join('')}</div>${d.resources && d.resources.length ? `<div class="day-section"><div class="day-section-label">Free resources</div><div>${d.resources.map(r => `<a class="resource-chip" href="${r.url}" target="_blank"><span class="icon">🔗</span>${r.label}</a>`).join('')}</div></div>` : ''}${d.concept ? `<div class="day-section"><div class="day-section-label">Concept to internalize</div><div class="day-concept">${d.concept}</div></div>` : ''}</div></div></div>`;
+  });
+  dv.innerHTML = html;
+}
+function toggleDone(dayNum, e) { e.stopPropagation(); completed[dayNum] = !completed[dayNum]; save(); renderAll(); }
+function toggleExpand(dayNum, e) { e.stopPropagation(); expanded[dayNum] = !expanded[dayNum]; renderDayView(); }
+function renderAll() { updateHeader(); renderPhaseNav(); renderSidebar(); renderDayView(); }
+renderAll();
+</script>
+</body>
+</html>

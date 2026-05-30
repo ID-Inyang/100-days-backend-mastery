@@ -1,0 +1,23 @@
+# Dependency folders
+node_modules/
+dist/
+build/
+
+# Environment configurations and local keys
+.env
+.env.local
+.doppler
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Network traces and database caches
+*.pcapng
+.data/
+pgdata/
+
+# Application generated keys (used in Week 2 and Week 12)
+*.pem
+*.crt
+*.key
